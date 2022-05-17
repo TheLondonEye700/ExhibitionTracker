@@ -30,7 +30,7 @@ const Login = () => {
       setError("Enter all fields.");
     } else {
       let userToken = await authService.login({ userName, psw });
-      console.log(userToken);
+      //   console.log(userToken);
       if (userToken) {
         dispatch(addToken(userToken));
         window.localStorage.setItem("loginToken", JSON.stringify(userToken));
@@ -49,7 +49,7 @@ const Login = () => {
           <Alert.Heading>{error}</Alert.Heading>
         </Alert>
       ) : null}
-
+      tenant@aalto.exhibition
       <Form onSubmit={handleLogin}>
         <Form.Control
           className="mb-3"
@@ -57,7 +57,7 @@ const Login = () => {
           placeholder="Username"
           onChange={onUserNameInput}
         />
-
+        UHw*i8ZmC766B#
         <Form.Control
           className="mb-3"
           type="password"

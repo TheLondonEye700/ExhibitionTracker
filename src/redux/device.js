@@ -10,10 +10,10 @@ const deviceSlice = createSlice({
 	initialState,
 	reducers: {
 		setDetecting(state, action) {
-			state = { ...state, isDetecting: action.payload }
+			state.isDetecting = action.payload
 		},
 		setOnline(state, action) {
-			state = { ...state, isOnline: action.payload }
+			state.isOnline = action.payload
 		}
 	}
 })
