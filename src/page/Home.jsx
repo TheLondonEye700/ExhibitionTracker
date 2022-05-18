@@ -37,7 +37,7 @@ const Home = () => {
   return (
     <>
       <h2>Exhibition Spaces</h2>
-      <Accordion>
+      <Accordion alwaysOpen={true}>
         {exhibitions.map(exhibition => {
           return (
           <Accordion.Item key={exhibition.name} eventKey={exhibition.name}>

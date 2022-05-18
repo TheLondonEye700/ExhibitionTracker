@@ -13,13 +13,13 @@ import { useDeviceInfo } from "../hooks/useDeviceInfo.jsx";
 export const Device = ({id}) => {
   const userToken = useSelector((state) => state.user.userToken);
   const isOnline = useSelector((state) => state.device.isOnline);
-  const isDetecting = useSelector((state) => state.device.isDetecting);
+  const isDetectionEnabled = useSelector((state) => state.device.isDetectionEnabled);
   const dispatch = useDispatch();
 
   const [online, detectionEnabled, name, exhibition] = useDeviceInfo(
     userToken,
     id,
-    isDetecting,
+    isDetectionEnabled,
     isOnline
   );
   useEffect(() => {
@@ -30,14 +30,14 @@ export const Device = ({id}) => {
 
   const handleToggle = useCallback(() => {
     deviceService
-      .toggleDetection(userToken.token, isDetecting)
+      .toggleDetection(userToken.token, isDetectionEnabled)
       .then((value) => {
         if (value === true) {
-          dispatch(setDetectionEnabled(!isDetecting));
+          dispatch(setDetectionEnabled(!isDetectionEnabled));
         }
       })
       .catch((e) => console.log("error", e));
-  }, [dispatch, isDetecting, userToken.token]);
+  }, [dispatch, isDetectionEnabled, userToken.token]);
 
   useWebsocket(userToken.token, id);
   // TODO: disable toggle detection if device is not online
@@ -57,7 +57,7 @@ export const Device = ({id}) => {
             <div>
               <div className="fw-bold">State</div>
               <div>{isOnline ? "Online" : "Offline"}</div>
-              <div>{isDetecting ? "Detection Enabled" : "Detection Disabled"}</div>
+              <div>{isDetectionEnabled ? "Detection Enabled" : "Detection Disabled"}</div>
             </div>
           </ListGroup.Item>
         </ListGroup>
@@ -65,7 +65,7 @@ export const Device = ({id}) => {
       <div className="mt-3">
         <h5>Device control</h5>
         <Button size="sm" onClick={handleToggle}>
-          {isDetecting ? "Turn off" : "Turn on"}
+          {isDetectionEnabled ? "Turn off" : "Turn on"}
         </Button>
       </div>
     </>

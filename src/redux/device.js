@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-	isDetecting: false,
+	isDetectionEnabled: false,
 	isOnline: false
 }
 
@@ -10,7 +10,7 @@ const deviceSlice = createSlice({
 	initialState,
 	reducers: {
 		setDetectionEnabled(state, action) {
-			state.isDetecting = action.payload
+			state.isDetectionEnabled = action.payload
 		},
 		setOnline(state, action) {
 			state.isOnline = action.payload

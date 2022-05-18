@@ -200,11 +200,11 @@ const getDeviceDetecting = async (token, deviceId) => {
 	return false
 }
 
-const toggleDetection = async (token, isDetecting) => {
+const toggleDetection = async (token, isDetectionEnabled) => {
 	const deviceId = await getDeviceId(token)
 	try {
 		const res = await axios.post(`https://tb.yerzham.com/api/plugins/telemetry/DEVICE/${deviceId}/SHARED_SCOPE`, {
-			detectionEnabled: !isDetecting
+			detectionEnabled: !isDetectionEnabled
 		},
 			{
 				headers: {
