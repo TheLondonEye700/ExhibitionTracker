@@ -6,11 +6,7 @@ const convertMsToString = (ms) => {
   const d = new Date(ms);
   const hour = d.getHours().toString();
   const min = d.getMinutes().toString();
-  const sec = d.getSeconds().toString();
-  return `${hour.padStart(2, "0")}:${min.padStart(2, "0")}:${sec.padStart(
-    2,
-    "0"
-  )}`;
+  return `${hour.padStart(2, "0")}:${min.padStart(2, "0")}`;
 };
 
 export const Charts = () => {

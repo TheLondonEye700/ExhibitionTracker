@@ -4,41 +4,42 @@ import Button from "react-bootstrap/Button";
 import { useDispatch, useSelector } from "react-redux";
 import deviceService from "../service/device.js";
 import { useEffect, useCallback } from "react";
-import { setDetecting, setOnline } from "../redux/device.js";
+import { setDetectionEnabled, setOnline } from "../redux/device.js";
 import { useWebsocket } from "../hooks/useWebsocket.jsx";
 import { useDeviceInfo } from "../hooks/useDeviceInfo.jsx";
 
 // const name = "A4B72CCDFF33";
 
-export const Device = () => {
+export const Device = ({id}) => {
   const userToken = useSelector((state) => state.user.userToken);
   const isOnline = useSelector((state) => state.device.isOnline);
-  const isDetecting = useSelector((state) => state.device.isDetecting);
+  const isDetectionEnabled = useSelector((state) => state.device.isDetectionEnabled);
   const dispatch = useDispatch();
 
-  const [online, detecting, name] = useDeviceInfo(
+  const [online, detectionEnabled, name, exhibition] = useDeviceInfo(
     userToken,
-    isDetecting,
+    id,
+    isDetectionEnabled,
     isOnline
   );
   useEffect(() => {
     // dispatch after render, if not while Device render it is dispatching action that make it update => rerender
-    dispatch(setDetecting(detecting));
+    dispatch(setDetectionEnabled(detectionEnabled));
     dispatch(setOnline(online));
-  }, [detecting, dispatch, online]);
+  }, [detectionEnabled, dispatch, online]);
 
   const handleToggle = useCallback(() => {
     deviceService
-      .toggleDetection(userToken.token, isDetecting)
+      .toggleDetection(userToken.token, isDetectionEnabled)
       .then((value) => {
         if (value === true) {
-          dispatch(setDetecting(!isDetecting));
+          dispatch(setDetectionEnabled(!isDetectionEnabled));
         }
       })
       .catch((e) => console.log("error", e));
-  }, [dispatch, isDetecting, userToken.token]);
+  }, [dispatch, isDetectionEnabled, userToken.token]);
 
-  useWebsocket(userToken.token);
+  useWebsocket(userToken.token, id);
   // TODO: disable toggle detection if device is not online
 
   return (
@@ -47,16 +48,16 @@ export const Device = () => {
         <h5>Device information</h5>
         <ListGroup>
           <ListGroup.Item>
-            <div>
-              <div className="fw-bold">Name</div>
-              <div>{name}</div>
-            </div>
+            <h6 className="fw-bold">Name</h6>
+            <p>{name}</p>
+            <h6 className="fw-bold">Location</h6>
+            <p>{exhibition}</p>
           </ListGroup.Item>
           <ListGroup.Item>
             <div>
               <div className="fw-bold">State</div>
               <div>{isOnline ? "Online" : "Offline"}</div>
-              <div>{isDetecting ? "Detecting" : "Not detecting"}</div>
+              <div>{isDetectionEnabled ? "Detection Enabled" : "Detection Disabled"}</div>
             </div>
           </ListGroup.Item>
         </ListGroup>
@@ -64,7 +65,7 @@ export const Device = () => {
       <div className="mt-3">
         <h5>Device control</h5>
         <Button size="sm" onClick={handleToggle}>
-          {isDetecting ? "Turn off" : "Turn on"}
+          {isDetectionEnabled ? "Turn off" : "Turn on"}
         </Button>
       </div>
     </>
