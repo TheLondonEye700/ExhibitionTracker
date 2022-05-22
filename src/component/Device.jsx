@@ -4,7 +4,7 @@ import Button from "react-bootstrap/Button";
 import { useDispatch, useSelector } from "react-redux";
 import deviceService from "../service/device.js";
 import { useEffect, useCallback } from "react";
-import { setDetectionEnabled, setOnline } from "../redux/device.js";
+import { setDetectionEnabled, setOnline, setDetecting, setNumberOfPeople } from "../redux/device.js";
 import { useWebsocket } from "../hooks/useWebsocket.jsx";
 import { useDeviceInfo } from "../hooks/useDeviceInfo.jsx";
 
@@ -12,21 +12,25 @@ import { useDeviceInfo } from "../hooks/useDeviceInfo.jsx";
 
 export const Device = ({id}) => {
   const userToken = useSelector((state) => state.user.userToken);
+  const currentNumberOfPeople = useSelector((state) => state.device.currentNumberOfPeople);
   const isOnline = useSelector((state) => state.device.isOnline);
   const isDetectionEnabled = useSelector((state) => state.device.isDetectionEnabled);
+  const isDetecting = useSelector((state) => state.device.isDetecting);
   const dispatch = useDispatch();
 
-  const [online, detectionEnabled, name, exhibition] = useDeviceInfo(
+  const [online, detectionEnabled, detecting, name, exhibition] = useDeviceInfo(
     userToken,
     id,
     isDetectionEnabled,
-    isOnline
+    isOnline,
+    isDetecting
   );
   useEffect(() => {
     // dispatch after render, if not while Device render it is dispatching action that make it update => rerender
     dispatch(setDetectionEnabled(detectionEnabled));
     dispatch(setOnline(online));
-  }, [detectionEnabled, dispatch, online]);
+    dispatch(setDetecting(detecting));
+  }, [detectionEnabled, dispatch, online, detecting]);
 
   const handleToggle = useCallback(() => {
     deviceService
@@ -39,8 +43,20 @@ export const Device = ({id}) => {
       .catch((e) => console.log("error", e));
   }, [dispatch, isDetectionEnabled, userToken.token]);
 
-  useWebsocket(userToken.token, id);
-  // TODO: disable toggle detection if device is not online
+  const [wsMsg] = useWebsocket(userToken.token, id);
+
+  useEffect(()=>{
+    console.log(wsMsg);
+    if (wsMsg.active){
+      dispatch(setOnline(wsMsg.active[0][1]==="true"))
+    }
+    if (wsMsg.detecting){
+      dispatch(setDetecting(wsMsg.detecting[0][1]==="true"))
+    }
+    if (wsMsg.numberOfPeople){
+      dispatch(setNumberOfPeople(Number(wsMsg.numberOfPeople[0][1])))
+    }
+  }, [wsMsg, dispatch])
 
   return (
     <div className="pt-4 pb-4">
@@ -55,8 +71,24 @@ export const Device = ({id}) => {
         </ListGroup.Item>
         <ListGroup.Item>
           <div>
-            <div className="fw-bold">State</div>
-            <div>{isOnline ? "Online" : "Offline"}</div>
+          <h6 className="fw-bold">State</h6>
+            <div className="d-flex mb-1">
+              {isOnline ? 
+                <>
+                  <div className="badge bg-success">Online</div>
+                  {isDetecting ? 
+                    <div className="ms-2 badge bg-success">Detecting</div> 
+                  : 
+                    <div className="ms-2 badge bg-secondary">Not Detecting</div> 
+                  }
+                </>
+                 : (
+                <div className="badge bg-secondary">Offline</div>
+              )}
+            </div>
+            {isDetecting ? 
+            <p>Currently in view: {currentNumberOfPeople !== null ? <>{currentNumberOfPeople} people</> : "N/A"}</p> : <></>}
+            <h6 className="fw-bold">Configuration</h6>
             <div>{isDetectionEnabled ? "Detection Enabled" : "Detection Disabled"}</div>
           </div>
         </ListGroup.Item>

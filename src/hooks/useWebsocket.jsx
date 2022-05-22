@@ -1,36 +1,59 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const useWebsocket = (token, deviceId) => {
   const [msg, setMsg] = useState("");
+  const ws = useMemo(() => { 
+    return new WebSocket(`wss://tb.yerzham.com/api/ws/plugins/telemetry?token=${token}`);
+  }, [token]);
   useEffect(() => {
-    const ws = new WebSocket(
-      `wss://tb.yerzham.com/api/ws/plugins/telemetry?token=${token}`
-    );
     ws.onopen = () => {
       console.log("ws opened");
-      var object = {
+      // ws.send(JSON.stringify({
+      //   tsSubCmds: [
+      //       {
+      //           entityType: "DEVICE",
+      //           entityId: deviceId,
+      //           scope: "LATEST_TELEMETRY",
+      //           cmdId: 10
+      //       }
+      //   ],
+      //   historyCmds: [],
+      //   attrSubCmds: []
+      // }));
+      ws.send(JSON.stringify({
         tsSubCmds: [
-            {
-                entityType: "DEVICE",
-                entityId: deviceId,
-                scope: "LATEST_TELEMETRY",
-                cmdId: 10
-            }
+          {
+            entityType: "DEVICE",
+            entityId: deviceId,
+            scope: "LATEST_TELEMETRY",
+            cmdId: 9
+          }
         ],
         historyCmds: [],
-        attrSubCmds: []
-      };
-      var data = JSON.stringify(object);
-      ws.send(data);
-      console.log("Message is sent: " + data);
+        attrSubCmds: [
+          {
+            entityType: "DEVICE",
+            entityId: deviceId,
+            keys:"active",
+            scope: "SERVER_SCOPE",
+            cmdId: 10
+          },
+          {
+            entityType: "DEVICE",
+            entityId: deviceId,
+            keys:"detecting",
+            scope: "CLIENT_SCOPE",
+            cmdId: 11
+          }
+        ]
+      }));
     };
     ws.onmessage = (message) => {
-      console.log(message);
-      setMsg(message);
+      setMsg(JSON.parse(message.data).data);
     };
     ws.onerror = function () {
       console.log("Connection Error");
     };
-  }, [token, deviceId]);
+  }, [token, deviceId, ws]);
   return [msg];
 };
