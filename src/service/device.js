@@ -109,7 +109,6 @@ const getExhibitionInfo = async (token, exhibitionId) => {
 }
 
 const getDeviceId = async (token) => {
-	// console.log(token)
 	try {
 		const res = await axios.get('https://tb.yerzham.com/api/tenant/devices?page=0&pageSize=30',
 			{
@@ -219,20 +218,21 @@ const toggleDetection = async (token, isDetectionEnabled) => {
 	}
 }
 
-const getDataFromDate = async (token, startTime, endTime) => {
-	console.log(startTime, endTime);
-	// time in milisecond
-	const deviceId = await getDeviceId(token)
+const getDataFromDate = async (token, deviceId, startTime, endTime, interval) => {
 	try {
-		const res = await axios.get(`https://tb.yerzham.com/api/plugins/telemetry/DEVICE/${deviceId}/values/timeseries?keys=numberOfPeople&startTs=${startTime}&endTs=${endTime}&interval=60000&agg=AVG`, {
+		const res = await axios.get(`https://tb.yerzham.com/api/plugins/telemetry/DEVICE/${deviceId}/values/timeseries?keys=numberOfPeople&startTs=${startTime}&endTs=${endTime}&interval=${interval}&agg=AVG`, {
 			headers: {
 				'X-Authorization': `Bearer ${token}`
 			}
 		})
-		console.log(res)
+		if (res.status === 400){
+			return 'Interval too low. Please, increase the interval'
+		}
 		return res.data
 	} catch (error) {
-		console.log(error)
+		if (error.code === "ERR_BAD_REQUEST"){
+			return 'Interval too low. Please, increase the interval'
+		}
 	}
 }
 

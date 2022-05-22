@@ -31,6 +31,6 @@ export const useWebsocket = (token, deviceId) => {
     ws.onerror = function () {
       console.log("Connection Error");
     };
-  }, [token]);
+  }, [token, deviceId]);
   return [msg];
 };

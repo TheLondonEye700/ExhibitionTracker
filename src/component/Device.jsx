@@ -43,31 +43,32 @@ export const Device = ({id}) => {
   // TODO: disable toggle detection if device is not online
 
   return (
-    <>
-      <div className="pt-2">
-        <h5>Device information</h5>
-        <ListGroup>
-          <ListGroup.Item>
-            <h6 className="fw-bold">Name</h6>
-            <p>{name}</p>
-            <h6 className="fw-bold">Location</h6>
-            <p>{exhibition}</p>
-          </ListGroup.Item>
-          <ListGroup.Item>
-            <div>
-              <div className="fw-bold">State</div>
-              <div>{isOnline ? "Online" : "Offline"}</div>
-              <div>{isDetectionEnabled ? "Detection Enabled" : "Detection Disabled"}</div>
-            </div>
-          </ListGroup.Item>
-        </ListGroup>
-      </div>
-      <div className="mt-3">
-        <h5>Device control</h5>
-        <Button size="sm" onClick={handleToggle}>
-          {isDetectionEnabled ? "Turn off" : "Turn on"}
-        </Button>
-      </div>
-    </>
+    <div className="pt-4 pb-4">
+    <h5>Device information</h5>
+    <div className="pt-2">
+      <ListGroup>
+        <ListGroup.Item>
+          <h6 className="fw-bold">Name</h6>
+          <p>{name}</p>
+          <h6 className="fw-bold">Location</h6>
+          <p>{exhibition}</p>
+        </ListGroup.Item>
+        <ListGroup.Item>
+          <div>
+            <div className="fw-bold">State</div>
+            <div>{isOnline ? "Online" : "Offline"}</div>
+            <div>{isDetectionEnabled ? "Detection Enabled" : "Detection Disabled"}</div>
+          </div>
+        </ListGroup.Item>
+      </ListGroup>
+    </div>
+    <div className="mt-3">
+      <h5>Device control</h5>
+      <label>Detection: </label>
+      <Button size="sm" className="ms-2" onClick={handleToggle}>
+        {isDetectionEnabled ? "Turn off" : "Turn on"}
+      </Button>
+    </div>
+    </div>
   );
 };

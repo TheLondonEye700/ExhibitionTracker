@@ -1,63 +1,119 @@
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSendDate } from "../hooks/useSendDate";
 import { changeData } from "../redux/data";
+import TimePicker from 'react-bootstrap-time-picker';
 
-const MILLISEC_IN_HOUR = 60 * 60 * 1000;
+// const MILLISEC_IN_HOUR = 60 * 60 * 1000;
 
-export const DatePicker = () => {
+const convertMsToString = (ms) => {
+  const d = new Date(ms);
+  const hour = d.getHours().toString();
+  const min = d.getMinutes().toString();
+  return `${hour.padStart(2, "0")}:${min.padStart(2, "0")}`;
+};
+
+export const DatePicker = ({deviceId}) => {
   const userToken = useSelector((state) => state.user.userToken);
   const [date, setDate] = useState(0);
-  const [start, setStart] = useState(0);
-  const [end, setEnd] = useState(0);
+  const [start, setStart] = useState(21600);
+  const [end, setEnd] = useState(23400);
+  const [interval, setInterval] = useState(60000);
   const dispatch = useDispatch();
 
-  const [data] = useSendDate(userToken.token, start, end);
+  const [data, fetchData] = useSendDate(userToken.token, deviceId, date, start, end, interval);
 
-  useEffect(() => {
+  useEffect(() => {  
     dispatch(changeData(data));
   }, [data, dispatch]);
 
-  const handleDate = (e) => {
+  const handleSubmit = useCallback(()=>{
+    fetchData()
+  }, [fetchData])
+
+  const handleDate = useCallback((e) => {
     e.preventDefault();
+  }, []);
 
-    const start_time = date + 6 * MILLISEC_IN_HOUR; // original date start at 3 am => + 6 hour
-    const end_time = start_time + 9 * MILLISEC_IN_HOUR;
+  const handleStartTime = useCallback((time)=>{
+    setStart(time);
+    if (time >= end){
+      setEnd(time+1800)
+    }
+  }, [end])
 
-    // console.log(new Date(start_time), new Date(end_time));
-    setStart(start_time);
-    setEnd(end_time);
-  };
+  const handleEndTime = useCallback((time)=>{
+    setEnd(time);
+  }, [])
+
+  const handleInterval = useCallback((e)=>{
+    setInterval(e.target.value);
+  }, [])
+
+  const handleStartTimeChange = useCallback(()=>{
+    return convertMsToString((start+1800)*1000)
+  }, [start])
 
   return (
-    <div className="p-2">
-      <h5>Tracking date</h5>
-      <Form className="d-flex justify-content-between" onSubmit={handleDate}>
-        <Form.Control
-          type="date"
-          className="w-auto"
-          onChange={(e) => {
-            setDate(Date.parse(e.target.value));
-          }}
-        />
+    <div className="pt-2 pb-2">
+      <h5>Time Frame</h5>
+      <div>
+        <Form className="d-flex" onSubmit={handleDate}>
+          <div>
+            <label htmlFor="date">Tracking Date</label>
+            <Form.Control
+            id="date"
+            type="date"
+            onChange={(e) => {
+              setDate(Date.parse(e.target.value));
+            }}
+          />
+          </div>
+          
+          <div className="ms-3" style={{width: "7rem"}}>
+          <label htmlFor="start-time">Start Time</label>
+            <TimePicker 
+              onChange={handleStartTime}
+              id="start-time"
+              format={24}
+              start="6:00" 
+              end="21:00" 
+              step={30}
+              value={start}
+            />
+          </div>
 
-        {/* <Form.Select className="w-auto">
-          <option>Choose starting time</option>
-          <option value="1">9 AM</option>
-          <option value="2">10 AM</option>
-          <option value="3">11 AM</option>
-        </Form.Select>
+          <div className="ms-3" style={{width: "7rem"}}>
+          <label htmlFor="end-time">End Time</label>
+            <TimePicker
+              onChange={handleEndTime}
+              id="end-time"
+              format={24}
+              initialValue="6:30"
+              start={handleStartTimeChange()} 
+              end="21:00" 
+              step={30}
+              value={end}
+            />
+          </div>
 
-        <Form.Control
-          type="text"
-          placeholder="Tracking hour length"
-          className="w-auto"
-        /> */}
-
-        <Button type="submit">View data</Button>
-      </Form>
+          <div className="ms-5">
+          <label htmlFor="interval">Averaging Interval</label>
+            <Form.Select name="interval" id="interval" value={interval} onChange={handleInterval}>
+              <option value="60000">1 minute</option>
+              <option value="600000">10 minutes</option>
+              <option value="3600000">1 hour</option>
+            </Form.Select>
+          </div>
+          
+          <div className="ms-auto d-flex align-items-end">
+            <Button onClick={handleSubmit}>View data</Button>
+          </div>
+          
+        </Form>
+      </div>
     </div>
   );
 };
