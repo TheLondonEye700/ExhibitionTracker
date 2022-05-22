@@ -9,8 +9,8 @@ export const DeviceView = () => {
   const { id } = useParams();
   return (
     <>
-    {'<'}<Link to='/home'>Exhibition Spaces</Link>
-    <h2>Device Dashboard</h2>
+    Back to <Link to='/home'>Exhibition Spaces</Link>
+    <h2 className="mt-2">Device Dashboard</h2>
     <Row>
       <Col lg={9}>
         <DatePicker deviceId={id}/>

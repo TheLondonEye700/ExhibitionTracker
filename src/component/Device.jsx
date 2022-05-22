@@ -1,14 +1,11 @@
 import ListGroup from "react-bootstrap/ListGroup";
 import Button from "react-bootstrap/Button";
-// import Form from "react-bootstrap/Form";
 import { useDispatch, useSelector } from "react-redux";
 import deviceService from "../service/device.js";
 import { useEffect, useCallback } from "react";
 import { setDetectionEnabled, setOnline, setDetecting, setNumberOfPeople } from "../redux/device.js";
 import { useWebsocket } from "../hooks/useWebsocket.jsx";
 import { useDeviceInfo } from "../hooks/useDeviceInfo.jsx";
-
-// const name = "A4B72CCDFF33";
 
 export const Device = ({id}) => {
   const userToken = useSelector((state) => state.user.userToken);
@@ -86,7 +83,7 @@ export const Device = ({id}) => {
                 <div className="badge bg-secondary">Offline</div>
               )}
             </div>
-            {isDetecting ? 
+            {isOnline && isDetecting ? 
             <p>Currently in view: {currentNumberOfPeople !== null ? <>{currentNumberOfPeople} people</> : "N/A"}</p> : <></>}
             <h6 className="fw-bold">Configuration</h6>
             <div>{isDetectionEnabled ? "Detection Enabled" : "Detection Disabled"}</div>

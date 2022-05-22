@@ -3,13 +3,6 @@ import { Bar } from "react-chartjs-2";
 import { useSelector } from "react-redux";
 import 'chartjs-adapter-moment';
 
-const convertMsToString = (ms) => {
-  const d = new Date(ms);
-  const hour = d.getHours().toString();
-  const min = d.getMinutes().toString();
-  return `${hour.padStart(2, "0")}:${min.padStart(2, "0")}`;
-};
-
 export const Charts = () => {
   const dataObj = useSelector((state) => state.data.dataObj);
   const [dailyData, setDailyData] = useState([]);
@@ -32,15 +25,15 @@ export const Charts = () => {
 
   return (
     <div className="pt-4 pb-4">
-      <h5>Number of people in the camera view</h5>
-      {dailyData.length > 0 ? (
+      {dailyData.length > 0 ? <>
+        <h5>Average number of people in the camera view</h5>
         <Bar
           data={{
             datasets: [
               {
                 data: dailyData.map(({ people, time }) => {return {x: time, y: people}}),
                 backgroundColor: "#8888ff",
-                minBarLength: 0
+                barPercentage: 1
               },
             ],
           }}
@@ -55,6 +48,12 @@ export const Charts = () => {
                 min: dataObj.minTs,
                 max: dataObj.maxTs,
                 type: 'time',
+                time:{
+                  parser:(time)=>{
+                    return time + 2*60*60*1000;
+                  },
+                  stepSize: dataObj.interval
+                }
               }
             },
             plugins:{
@@ -64,7 +63,7 @@ export const Charts = () => {
             }
           }}
         />
-      ) : (
+      </> : (
         <div>Device was not detecting in the given time frame</div>
       )}
     </div>
