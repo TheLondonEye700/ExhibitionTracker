@@ -63,6 +63,7 @@ export const Charts = () => {
             }
           }}
         />
+        <p className="text-end fs-4">Detected people {dataObj.data["numberOfPeople"].filter(detection => detection.value > 0).length} times</p>
       </> : (
         <div>Device was not detecting in the given time frame</div>
       )}
